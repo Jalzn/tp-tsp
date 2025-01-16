@@ -6,6 +6,9 @@ Este projeto implementa três algoritmos para resolver o Problema do Caixeiro Vi
 - Twice Around
 - Christofides
 
+Para os algoritmos Twice Around e Christofide foi utilizada o modulo tracemalloc para identificar
+o gasto de memoria de cada um. Porem, isso possui um custo no tempo de execucao.
+
 ## Requisitos
 
 - Python 3.8 ou superior

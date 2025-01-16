@@ -39,38 +39,3 @@ def create_graph_from_path(path: str) -> tuple[nx.Graph, dict]:
             graph.add_edge(vi, vj, weight=distance)
     
     return graph, info
-
-def create_graph_from_custom(path: str) -> tuple[nx.Graph, dict]:
-    info = {
-        "name": "",
-        "comment": "",
-        "type": "",
-        "dimension": "",
-        "edge_weight_type": "",
-    }
-
-    graph = nx.Graph()
-
-    file = open(path)
-
-    id = 0
-    while True :
-        line = file.readline()
-
-        if not line:
-            break
-
-        print(line)
-        name, x, y = line.split()
-        graph.add_node(id, pos=(float(x), float(y)))
-        id += 1
-
-    for vi in graph.nodes:
-        for vj in graph.nodes:
-            xi, yi = graph.nodes[vi]['pos']
-            xj, yj = graph.nodes[vj]['pos']
-
-            distance = np.sqrt((xi - xj) ** 2 + (yi - yj) ** 2)
-            graph.add_edge(vi, vj, weight=distance)
-    
-    return graph, info

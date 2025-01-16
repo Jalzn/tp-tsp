@@ -1,6 +1,5 @@
 import sys
 import networkx as nx
-import resource
 import tracemalloc
 import time
 from multiprocessing import Process, Queue
@@ -12,16 +11,11 @@ def execute_algorithm(func, graph, queue):
         init = time.time()
         path, cost = func.solve(graph)
         end = time.time()
-        queue.put((path, cost, end - init))  # Envia os resultados para a fila
+        queue.put((path, cost, end - init))
     except Exception as e:
-        queue.put(e)  # Envia exceções para a fila
+        queue.put(e)
 
 def main(algorithm, path: str):
-    # tracemalloc.start()
-    graph, info = utils.create_graph_from_path(path)
-    # current1, _ = tracemalloc.get_traced_memory()
-    current1, _ = (0, 0)
-
     func = None
 
     if algorithm == "branch-bound":
@@ -35,11 +29,21 @@ def main(algorithm, path: str):
         print(f"Failed to identify algorithm {algorithm}")
         return -1
 
+    if algorithm != "branch-bound":
+        tracemalloc.start()
+    graph, info = utils.create_graph_from_path(path)
+
+    if algorithm != "branch-bound":
+        current1, _ = tracemalloc.get_traced_memory()
+    else:
+        current1, _ = (0, 0)
+
+
     timeout = 1800  # 30 minutos
     queue = Queue()
     process = Process(target=execute_algorithm, args=(func, graph, queue))
     process.start()
-    process.join()
+    process.join(timeout)
 
     if process.is_alive():
         process.terminate()
@@ -48,9 +52,11 @@ def main(algorithm, path: str):
     else:
         timed_out = False
 
-    # current2, _ = tracemalloc.get_traced_memory()
-    current2, _ = (0, 0)
-    # tracemalloc.stop()
+    if algorithm != "branch-bound":
+        current2, _ = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+    else:
+        current2, _ = (0, 0)
 
     if timed_out:
         print(f"Nome: {info['name']}")
@@ -80,16 +86,7 @@ def main(algorithm, path: str):
 
 
 if __name__ == "__main__":
-    # 1GB
-    memory_limit = 4096 * 1024 * 1024
-
-    resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
-
     if len(sys.argv) != 3:
         print("./main.py <branch-bound | twice-around | christofides> <input>")
         exit(1)
-
-    try:
-        main(sys.argv[1], sys.argv[2])
-    except MemoryError:
-        print("O programa atingiu o limite de memória.")
+    main(sys.argv[1], sys.argv[2])
