@@ -20,7 +20,6 @@ def main(algorithm, path: str):
 
     if algorithm == "branch-bound":
         func = branch_bound
-        graph = nx.to_numpy_array(graph)
     elif algorithm == "twice-around":
         func = twice_around
     elif algorithm == "christofides":
@@ -32,6 +31,9 @@ def main(algorithm, path: str):
     if algorithm != "branch-bound":
         tracemalloc.start()
     graph, info = utils.create_graph_from_path(path)
+
+    if algorithm == "branch-bound":
+        graph = nx.to_numpy_array(graph)
 
     if algorithm != "branch-bound":
         current1, _ = tracemalloc.get_traced_memory()
